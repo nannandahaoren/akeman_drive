@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* 样式定义 */
+        #slider {
+            width: 20px;
+            height: 200px;
+            background-color: #f1f1f1;
+            position: relative;
+            touch-action: none;
+            border: 2px solid #555;
+            border-radius: 10px;
+            margin: 20px;
+        }
+
+        #slider > .handle {
+            width: 100%;
+            height: 50px;
+            background-color: #4CAF50;
+            position: absolute;
+            border-radius: 10px;
+            cursor: grab;
+        }
+
+        #speed {
+            margin-top: 10px;
+            font-size: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="slider">
+        <div class="handle"></div>
+    </div>
+    <div id="speed">Speed: 0</div>
+
+    <script>
+        // JavaScript 代码
+        var slider = document.getElementById("slider");
+        var handle = document.querySelector(".handle");
+        var sliderHeight = slider.offsetHeight;
+        var handleHeight = handle.offsetHeight;
+        var maxTop = sliderHeight - handleHeight;
+
+        var currentPosition = 0;
+        var currentSpeed = 0;
+        var speedDisplay = document.getElementById("speed");
+
+        var isDragging = false;
+
+        // 添加事件监听器
+        slider.addEventListener("mousedown", startDrag);
+        slider.addEventListener("mousemove", dragHandle);
+        slider.addEventListener("mouseup", stopDrag);
+        slider.addEventListener("touchstart", startDrag);
+        slider.addEventListener("touchmove", dragHandle);
+        slider.addEventListener("touchend", stopDrag);
+
+        function startDrag(event) {
+            event.preventDefault();
+            isDragging = true;
+            currentPosition = getCurrentPosition(event);
+            moveHandle();
+
+            // 启动推杆动力
+            accelerate();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+
+            // 停止推杆动力
+            decelerate();
+        }
+
+        function dragHandle(event) {
+            event.preventDefault();
+            if (!isDragging) return;
+            currentPosition = getCurrentPosition(event);
+            currentPosition = Math.max(0, Math.min(maxTop, currentPosition));
+            moveHandle();
+
+            // 计算速度并显示
+            currentSpeed = Math.round((currentPosition / maxTop) * 300);
+            speedDisplay.innerText = "Speed: " + currentSpeed;
+
+            // 更新飞机速度
+            updatePlaneSpeed();
+        }
+
+        function moveHandle() {
+            handle.style.top = currentPosition + "px";
+        }
+
+        function getCurrentPosition(event) {
+            var positionY;
+            if (event.type === "touchmove" || event.type === "touchstart") {
+                positionY = event.touches[0].clientY;
+            } else {
+                positionY = event.clientY;
+            }
+            return positionY - handleHeight / 2;
+        }
+
+        function accelerate() {
+            // 执行推杆动力逻辑，这里只是一个示例
+            console.log("Accelerating...");
+        }
+
+        function decelerate() {
+            // 执行停止推杆动力逻辑，这里只是一个示例
+            console.log("Decelerating...");
+        }
+
+        function updatePlaneSpeed() {
+            // 更新飞机速度，这里只是一个示例
+            console.log("Plane speed: " + currentSpeed);
+        }
+    </script>
+</body>
+</html>

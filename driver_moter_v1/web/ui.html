@@ -1,0 +1,182 @@
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="./style/style.css">
+    <link rel="stylesheet" href="./style/ui.css">
+  </head>
+
+  <body>
+    <div id="container">
+
+      <!-- 指示信息 -->
+      <div class="info">
+
+        <!-- 转速 -->
+        <div class="info-item">
+          <div class="info-item-title">目标转速 (ppr)</div>
+          <div class="item-common">
+            <image class="speed-icon" src="./assets/转速.png"></image>
+            <div class="target-speed item-common-text">0</div>
+          </div>
+        </div>
+
+        <!-- 转角 -->
+        <div class="info-item">
+          <div class="info-item-title">方向角度</div>
+          <div class="item-common">
+            <image class="speed-icon" src="./assets/量角器.png"></image>
+            <div class="target-angle item-common-text">0</div>
+          </div>
+        </div>
+
+        <!-- 网络 -->
+        <div class="info-item">
+          <div class="info-item-title">网络状态</div>
+          <div class="item-common">
+            <span class="net-state net-state-off"></span>
+            <span class="net-text">已断开</span>
+          </div>
+        </div>
+
+        <!-- 最大速度 -->
+        <div class="info-item">
+          <div class="info-item-title">实际速度 (ppr)</div>
+          <div class="item-common">
+            <image class="speed-icon" src="./assets/转速.png"></image>
+            <div class="real-speed item-common-text">0</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 按钮 -->
+      <div class="buttons">
+        <div class="net-btn">
+          <div class="net-btn-label">连接网络</div>
+          <div class="toggle">
+            <input class="websocket-button" type="checkbox" id="t">
+            <label for="t"></label>
+          </div>
+        </div>
+
+      </div>
+
+      <script src="./lib/tween.umd.js"></script>
+      <script src="./lib/virtualjoystick.js"></script>
+      <script type="module">
+
+        import { UI } from "./js/UI.js"
+        import { Joystick } from "./js/Joystick.js"
+        import { WebSocketClient } from './WebSocketClient.js'
+
+        let ui;
+        let socket;
+        let joystick;
+        var targetSpeed = 0;
+        var targetAngle = 0;
+        let tweens = [];
+        let targetMsg = ""
+
+        function sendMessage() {
+          // 0: 目标速度
+          // 1: 舵机角度
+
+          // ui: -90~90
+          // servo: 0~180
+          const msg = `${targetSpeed},${targetAngle}`;
+
+          if (targetMsg != msg) {
+            socket.send(msg)
+          }
+          targetMsg = msg;
+        }
+
+        ui = new UI({
+          netClick: state => {
+            if (state) {
+              socket.open()
+            } else {
+              socket.close()
+            }
+          }
+        });
+        ui.setTargetSpeed(0);
+        ui.setTargetAngle(0);
+        ui.setRealSpeed(0);
+        ui.setNetState(false, '等待')
+
+        // 摇杆
+        joystick = new Joystick({
+          change: (speed, angle) => {
+
+            const coords = { speed: targetSpeed, angle: targetAngle }
+            tweens.forEach(tween => {
+              tween.stop()
+            })
+            tweens.length = 0;
+
+            const time = Math.abs(targetSpeed - speed) * 2;
+            const tweenSpeed = new TWEEN.Tween(coords, false)
+              .to({ speed, angle }, time)
+              .easing(TWEEN.Easing.Quadratic.InOut)
+              .onUpdate(() => {
+                const currentSpeed = Number.parseInt(coords.speed);
+                ui.setTargetSpeed(currentSpeed);
+                targetSpeed = currentSpeed;
+                sendMessage();
+              })
+              .start()
+
+            // const tweenAngle = new TWEEN.Tween(coords, false)
+            //   .to({ speed, angle }, 500)
+            //   .easing(TWEEN.Easing.Quadratic.InOut)
+            //   .onUpdate(() => {
+            //     const currentAngle = Number.parseInt(coords.angle);
+            //     ui.setTargetAngle(currentAngle);
+            //     targetAngle = currentAngle;
+            //     ui.setTargetAngle(targetAngle);
+            //     sendMessage();
+            //   })
+            //   .start()
+            const currentAngle = Number.parseInt(angle);
+            ui.setTargetAngle(currentAngle);
+            targetAngle = currentAngle;
+            ui.setTargetAngle(targetAngle);
+            sendMessage();
+
+            tweens.push(tweenSpeed);
+            // tweens.push(tweenAngle);
+          }
+        });
+
+
+        socket = new WebSocketClient({
+          messageCallback: e => {
+            const v = e.split(',');
+            ui.setRealSpeed(v[0])
+          },
+          openCallback: () => {
+            ui.setNetState(true, "已连接")
+          },
+          closeCallback: () => {
+            ui.setNetState(false, "等待")
+          },
+          errorCallback: () => {
+            ui.setNetState(false, "错误")
+          }
+        });
+
+        // Setup the animation loop.
+        function animate(time) {
+          tweens.forEach(tween => {
+            tween.update(time)
+          })
+          requestAnimationFrame(animate)
+        }
+        requestAnimationFrame(animate)
+      </script>
+  </body>
+
+</html>

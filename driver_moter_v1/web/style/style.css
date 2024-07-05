@@ -1,0 +1,98 @@
+body {
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  background-color: #fafafa;
+}
+
+#container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+/* 指示信息 */
+.info {
+  margin-top: 0px;
+  background-color: rgb(159, 165, 233);
+  padding: 10px;
+  display: flex;
+}
+
+.info-item {
+  margin-left: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.info-item-title {
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.item-common {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.speed-icon {
+  width: 26px;
+  height: 26px;
+}
+.speed-text {
+  margin-left: 8px;
+  width: 20px;
+}
+
+.net-state {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+.net-state-on { background-color: #0f0; }
+.net-state-off { background-color: #f00; }
+
+.net-text {
+  margin-left: 8px;
+  width: 50px;
+}
+.item-common-text {
+  margin-left: 8px;
+  width: 30px;
+  text-align: center;
+}
+
+
+.buttons {
+  position: relative;
+}
+
+
+.net-btn-label {
+  position: absolute;
+  right: 100px;
+  top: 20px;
+  color: #888;
+}
+
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.3;
+    background-color: #ff0;
+  }
+  100% {
+    opacity: 1;
+    background-color: rgb(209, 137, 3);
+  }
+}
+
+.blink {
+  animation: twinkle 0.5s infinite 0.5s ease-in-out alternate;
+}

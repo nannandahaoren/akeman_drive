@@ -1,0 +1,164 @@
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<style>
+			body {
+				overflow: hidden;
+				padding: 0;
+				margin: 0;
+				background-color: #9e9e9e;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px;
+				width: 100%;
+				padding: 5px;
+				text-align: center;
+			}
+
+			#info a {
+				color: #0ab100;
+				text-decoration: none;
+			}
+
+			#info a:hover {
+				text-decoration: underline;
+			}
+
+			#container {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				padding: 0;
+				margin: 0;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+			}
+
+			 /* 样式定义 */
+			 #slider {
+            width: 20px;
+            height: 200px;
+            background-color: #f1f1f1;
+            position: relative;
+            touch-action: none;
+        }
+
+        #slider > .handle {
+            width: 100%;
+            height: 20px;
+            background-color: #4CAF50;
+            position: absolute;
+        }
+
+        #speed {
+            margin-top: 10px;
+            font-size: 20px;
+        }
+
+		</style>
+
+	</head>
+
+	<body>
+		<div id="container">
+			<div id="slider">
+				<div class="handle"></div>
+			</div>
+		</div>
+
+
+		<div id="info">
+			Wemos D1 Joystick
+			<br />
+			<span id="result"></span>
+		</div>
+		<script src="./lib/virtualjoystick.js"></script>
+		<script>
+			console.log("touchscreen is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
+
+			var joystick = new VirtualJoystick({
+				container: document.getElementById('container'),
+				mouseSupport: true,
+				limitStickTravel: true,
+				stationaryBase: true,
+				baseX: 180,
+				baseY: window.innerHeight / 2
+			});
+			joystick.addEventListener('touchStart', function () {
+				console.error('down')
+			})
+			joystick.addEventListener('touchEnd', function () {
+				console.error('up')
+			})
+			var prevX = 0;
+			var prevY = 0;
+			var newX = 0;
+			var newY = 0;
+			setInterval(function () {
+				var outputEl = document.getElementById('result');
+				newX = Math.round(joystick.deltaX());
+				newY = Math.round(joystick.deltaY()) * -1;
+				outputEl.innerHTML = '<b>Position:</b> '
+					+ ' X:' + newX
+					+ ' Y:' + newY;
+				// if ( newX != prevX || newY != prevY ){
+				// 	var xhr = new XMLHttpRequest();
+				// 	xhr.open('PUT', "./jsData.html?x="+newX+"&y="+newY)
+				// 	xhr.send();
+				// }
+				prevX = newX;
+				prevY = newY;
+			}, 1 / 30 * 1000);
+
+
+			// JavaScript 代码
+			var slider = document.getElementById("slider");
+        var handle = document.querySelector(".handle");
+        var sliderHeight = slider.offsetHeight;
+        var handleHeight = handle.offsetHeight;
+        var maxTop = sliderHeight - handleHeight;
+
+        var currentPosition = 0;
+        var currentSpeed = 0;
+        var speedDisplay = document.getElementById("speed");
+
+        // 添加手势事件监听器
+        slider.addEventListener("touchstart", startDrag);
+        slider.addEventListener("touchmove", dragHandle);
+        slider.addEventListener("touchend", stopDrag);
+
+        function startDrag(event) {
+            event.preventDefault();
+            currentPosition = event.touches[0].clientY - handleHeight / 2;
+            moveHandle();
+            document.addEventListener("touchmove", dragHandle);
+            document.addEventListener("touchend", stopDrag);
+        }
+
+        function stopDrag() {
+            document.removeEventListener("touchmove", dragHandle);
+        }
+
+        function dragHandle(event) {
+            event.preventDefault();
+            currentPosition = event.touches[0].clientY - handleHeight / 2;
+            currentPosition = Math.max(0, Math.min(maxTop, currentPosition));
+            moveHandle();
+
+            // 计算速度并显示
+            currentSpeed = Math.round((currentPosition / maxTop) * 300);
+            speedDisplay.innerText = "Speed: " + currentSpeed;
+        }
+
+        function moveHandle() {
+            handle.style.top = currentPosition + "px";
+        }
+		</script>
+	</body>
+
+</html>

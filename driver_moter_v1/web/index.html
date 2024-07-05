@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>速度调整</title>
+    <style>
+      .slider {
+        width: 300px;
+      }
+
+      .socket {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        background-color: #e8e6e6;
+        padding: 10px;
+        border-radius: 8px;
+        width: 200px;
+      }
+
+      .btn {
+        width: 100px;
+        margin: 5px 0;
+      }
+
+      #main {
+        width: 100%;
+        height: 400px;
+        margin-top: 30px;
+      }
+
+      .block {
+        margin-top: 30px;
+      }
+
+
+      .switch {
+        display: inline-block;
+        width: 80px;
+        height: 40px;
+        background-color: #ccc;
+        border-radius: 20px;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .switch:before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 36px;
+        height: 36px;
+        background-color: white;
+        border-radius: 50%;
+        transition: left 0.3s;
+      }
+
+      .switch.on {
+        background-color: green;
+      }
+
+      .switch.on:before {
+        left: 42px;
+      }
+
+      .switch.off:before {
+        left: 2px;
+      }
+
+    </style>
+    <script src="./lib/echarts.min.js"></script>
+  </head>
+
+  <body>
+    <h1>遥控小车</h1>
+
+    <div class="socket">
+      <span id="connectionStatus"></span>
+      <button class="btn" onclick="openWebSocket()">连接 WebSocket</button>
+      <button class="btn" onclick="closeWebSocket()">断开 WebSocket</button>
+    </div>
+
+    <div class="block">
+      <label for="targetSpeedSlider">目标转速</label>
+      <input type="range" id="targetSpeedSlider" class="slider" min="0" max="1000" value="0"
+             oninput="updateTargetSpeed()">
+      <span id="targetSpeedValue">0</span>
+    </div>
+
+    <div class="aaa">
+      <div id="switch" class="switch on" onclick="toggleSwitch()"></div>
+      <div class="dir">前进</div>
+    </div>
+
+
+    <div class="block">
+      <label for="angleSlider">角度</label>
+      <input type="range" id="angleSlider" class="slider" min="-34" max="34" value="0" oninput="updateAngle()">
+      <span id="angleValue">0</span>
+    </div>
+
+    <div id="main" style="width: 600px;height:400px;"></div>
+
+    <!-- <div class="PID">
+      <div class="pid-item">
+        <label for="targetSpeedSlider">P:</label>
+        <input type="range" id="targetSpeedSlider" class="slider" min="0" max="255" value="0"
+               oninput="updateTargetSpeed()">
+        <span id="targetSpeedValue">0</span>
+      </div>
+
+      <div class="pid-item">
+        <label for="targetSpeedSlider">I:</label>
+        <input type="range" id="targetSpeedSlider" class="slider" min="0" max="255" value="0"
+               oninput="updateTargetSpeed()">
+        <span id="targetSpeedValue">0</span>
+      </div>
+
+      <div class="pid-item">
+        <label for="targetSpeedSlider">D:</label>
+        <input type="range" id="targetSpeedSlider" class="slider" min="0" max="255" value="0"
+               oninput="updateTargetSpeed()">
+        <span id="targetSpeedValue">0</span>
+
+        <div class="btn">发送PID </div>
+      </div> -->
+    </div>
+    <script type="module" src="./index.js"></script>
+  </body>
+
+</html>
